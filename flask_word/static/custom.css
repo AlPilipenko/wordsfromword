@@ -1,0 +1,76 @@
+.tablez, th {
+  color: #014638;
+  font-size: 80%;
+  margin: 0 auto;
+  width: 100%;
+  white-space: nowrap;
+}
+
+tr:nth-child(even) {background-color: #d4edda;}
+
+.label-default {
+    text-align: center;
+    font-size: 12px;
+    color: grey;
+}
+
+.res-div {
+    resize: both;
+    overflow: auto;
+}
+
+.button {
+  position: absolute;
+  top: 30px;
+  left: -166px;
+  width: 300px;
+  padding: 2px;
+}
+
+.button-invalid {
+  position: absolute;
+  top: 30px;
+  left: 267px;
+  width: 300px;
+  padding: 2px;
+}
+
+
+.form-control-lg {
+  height: calc(1.5em + 1rem + 2px);
+  padding: .5rem 1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  border-radius: .3rem;
+  border: 1px solid #ffc107;
+}
+
+
+.header-buttons-modified {
+  float: none;
+  position: relative;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, 0%);
+}
+
+.dummy-button {
+  background-color: #545b62;
+  border-color: #4e555b;
+  pointer-events: none;
+}
+
+.not-dummy-button {
+  border-color: #4e555b;
+  cursor: pointer;
+  float: none;
+  position: relative;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, 0%);
+  line-height: 1.2;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active {
+  background-color: #ffc107;
+}

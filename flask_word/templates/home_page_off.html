@@ -1,0 +1,87 @@
+<!-- inherits title and structure from parent layout.html -->
+<!-- wrapping it into content block -->
+{% extends "layout.html" %}
+{% block content %}
+
+    <!-- style is given from main.CSS -->
+    <div class="content-section" style="width: 900px">
+        <!-- POST means that its gonna post this info on the same route -->
+        <form method="POST" action="" >
+          <!-- Part of the protection/security -->
+          {{ word_form.hidden_tag() }}
+            <fieldset class="form-group" >
+              <legend class"border-bottom mb-4"><b>Make some words from a word!</b></legend>
+              <div class="row">
+                <div class="col-6">
+                  <div class="form-group">
+                    {{ word_form.word.label(class="form-control-label") }}
+                    {% if word_form.word.errors %}
+                    <!-- in case of validation error (>20 chars...) -->
+                      <div style="width: 62%">
+                        {{ word_form.word(class="form-control form-control-lg is-invalid") }}
+                          <div class="invalid-feedback">
+                              {% for error in word_form.word.errors %}
+                                <span> {{ error }}</span>
+                              {% endfor%}
+                                <div class="button-invalid">
+                                  {{ word_form.submit(class="btn btn-outline-warning btn-lg") }}
+                                </div>
+                          </div>
+                      </div>
+                    {% else %}
+                      <div style="width: 62%">
+                        {{ word_form.word(class="form-control form-control-lg") }}
+                      </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                  <div class="button">
+                    {{ word_form.submit(class="btn btn-outline-warning btn-lg") }}
+                  </div>
+                </div>
+              </div>
+                </fieldset>
+
+                {% set x = word_form.processed_word_info(word_form.word.data) %}
+                {% if x != {} %}
+                  <div class="form-group">
+                    <td>Total words found: </td><strong>{{ x.get('total') }}</strong>
+                  </div>
+                  <div class="form-group">
+                    {% if x.get('longest') != None %}
+                        <td>Longest: </td><strong>{{ x.get('longest')[0] }}</strong> - {{x.get('longest')[1] }}
+                    {% endif %}
+                  </div>
+                    <div style="overflow-x:auto;">
+                      <table class='tablez'>
+                        <small class="text-muted ml-2">
+                          {% for alist in x.get('possible_words') %}
+                                  {% for w in alist %}
+                                    {% set d = x.get('temp_dictionary').get(w[w.find('.')+2:]) %}
+                                    {% set n = w[:w.find('.')+1]  %}
+                                    {% set wd = w[w.find('.')+1:]  %}
+                                      <td>
+                                        <div class="main-text">
+                                          <div class="fat_text">
+                                            {{ n }}<b>{{ wd }}</b>
+                                          </div>
+                                            <div class="hid-text-off">
+                                              <p>&nbsp</p>
+                                              <p><b>{{ wd }}</b><br>{{ d }}</p>
+                                            </div>
+                                          </div>
+                                        </td>
+                                  {% endfor %}
+                                </small>
+                              <tr>
+                          {% endfor %}
+                        </table>
+                    </div>
+                {% endif %}
+              {% endif %}
+
+          <!-- Part of the protection/security -->
+          {{ word_form.hidden_tag() }}
+
+
+{% endblock content %}
