@@ -1,93 +1,86 @@
 import json
 from flask_word import word_list
 
+
 with open(r"words_dictionary.json") as d:
+    """Loads English dictionary (~61k words) with corresponding definitions"""
     word_list = json.load(d)
-    #print(len(word_list))
 
 
-def words_building(word):
-    "Trying to make words from dictionary with letters from the word given"
-    word = str(word)
-    word = word.replace(" ", "").lower()
-    final_list = []
-
-    for w in word_list.keys():
-        if w == word:
-            "Not including original word"
-            continue
-
-        test_word = word
-        match = 0
-
-        for l in w:
-            try:
-                d = test_word.index(l)
-                test_word = test_word[:d] + test_word[(d+1):]
-                match += 1
-            except ValueError:
-                continue
-
-        if match == len(w) and len(w) > 1:
-            final_list.append(w)
-
-    final_list.sort(key=len)
-
-    return final_list
+def word_builder(user_input: str) -> list:
+    """
+    Returns a list of words that can be made from the user input.
+    """
+    user_input_striped = user_input.replace(" ", "").lower()
+    possible_words = []
+    for word in word_list.keys():
+        temp_user_input = user_input_striped
+        contain_letters = True
+        for letter in word:
+            if letter not in temp_user_input:
+                contain_letters = False
+                break
+            else:
+                letter_index = temp_user_input.index(letter)
+                temp_user_input = (temp_user_input[:letter_index]
+                                             + temp_user_input[letter_index+1:])
+        if contain_letters is True and len(word) > 1:
+            possible_words.append(word)
+    if user_input_striped in possible_words:
+        possible_words.remove(user_input_striped)
+    possible_words.sort(key=len)
+    return possible_words
 
 
-def final_word_meaning(f_list, max_description):
-    "To return found words + meanings"
+def possible_words_meaning(possible_words: list, max_description: int) -> dict:
+    """Returns found words + meanings as a dictionary. The length of
+    description is limited by max_description size.
+    """
     temp_dictionary = {}
+    for word in possible_words:
 
-    for w in f_list:
-
-        v = word_list.get(w)
-        v = v[:max_description]
-
-        if len(v) < 30 or v[-1] == "'" or v[-1] == '"':
+        description = word_list.get(word)
+        description = description[:max_description]
+        size = len(description)
+        if size < 30 or description[-1] == "'" or description[-1] == '"':
             pass
         else:
-            while v[-1] != ',':
-                v = v[:-1]
-            v = v[:-1]
-        v = v.replace('(', '')
-
-        temp_dictionary[w] = v
+            end = description.rfind(',')
+            description = description[:end]
+        description = description.replace('(', '')
+        temp_dictionary[word] = description + '.'
     return temp_dictionary
 
-def row_major(alist, n):
-    "To return rows with n words"
-    return [alist[i:i+n] for i in range(0, len(alist), n)]
+
+def enum_and_group_words(words: list, n: int) -> list:
+    """Enumerates words and split them in group of n-ths (10 - default)
+    """
+    enum_words = [f'{i}. {w}' for i, w in enumerate(words, 1)]
+    grouped_words = [enum_words[i:i+n] for i in range(0, len(enum_words), n)]
+    return grouped_words
 
 
-def word_maker(given_word):
-    "Main algo"
-    final_list = words_building(given_word)
-
-    "Prepearing to return key data"
-    try:
-        longest = [final_list[-1], word_list.get(final_list[-1])]
-    except:
-        longest = None #'Couldn"t find any words :('
-
-    final_list.sort()
-
-    "To return found words + meanings (max set 450 chars for description)"
-    temp_dictionary = final_word_meaning(final_list, 450)
-
-    "Enumerating words"
-    final_list = [f'{i}. {w}' for i, w in enumerate(final_list,1)]
-
-
-    "returning key data"
-    total = len(set(final_list))
-    final_list = row_major(final_list, 10)
+def word_maker(user_input: str) -> dict:
+    """
+    Returns all possible words with corresponding definitions that can be
+    made from the user input. Also, specifies the longest word and the total
+    number of words.
+    Preconditions:
+    - input is a string.
+    - maximum input length is 15 symbols when pictures disabled
+    - maximum input length is 25 symbols when pictures enabled
+    """
+    possible_words = word_builder(user_input)
+    total_words = len(possible_words)
+    if total_words == 0:
+        return {}
+    temp_dictionary = possible_words_meaning(possible_words, 450)
+    longest = [possible_words[-1], word_list.get(possible_words[-1])]
+    possible_words = enum_and_group_words(possible_words, 10)
     word_data = {
-                'total' : total,
-                'longest' : longest,
-                'possible_words' : final_list,
-                'temp_dictionary' : temp_dictionary
+                'total': total_words,
+                'longest': longest,
+                'possible_words': possible_words,
+                'temp_dictionary': temp_dictionary
                 }
-
     return word_data
